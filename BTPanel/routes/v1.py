@@ -184,6 +184,7 @@ def site(pdata=None):
         # 网站管理新增
         'test_domains_api',
         'site_rname',
+        'GitPullAndDeploy',
     )
     return publicObject(siteObject, defs, None, pdata)
 

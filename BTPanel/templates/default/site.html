@@ -92,5 +92,14 @@
 
 <script type="text/javascript">
 if(isSetup) site.plugin_firewall()
+if (typeof site_git_deploy !== 'function') {
+    window.site_git_deploy = function(siteName) {
+        var loadT = bt.load("Executando Git Pull e Deploy...");
+        bt.send('GitPullAndDeploy', 'site/GitPullAndDeploy', { siteName: siteName }, function (rdata) {
+            loadT.close();
+            bt.msg(rdata);
+        });
+    }
+}
 </script>
 {% endblock %}

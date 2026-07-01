@@ -6278,3 +6278,46 @@ RewriteRule \.(BTPFILE)$    /404.html   [R,NC]
         except:
             import traceback
             return public.returnMsg(False, traceback.format_exc())
+
+    def GitPullAndDeploy(self, get):
+        import os
+        import subprocess
+        
+        site_name = get.siteName
+        site_info = public.M('sites').where("name=?", (site_name,)).field('path').find()
+        
+        if not site_info:
+            return public.returnMsg(False, "Site não encontrado.")
+            
+        site_path = site_info['path']
+        
+        try:
+            # 1. Executa Git Pull
+            git_proc = subprocess.run(['git', 'pull'], cwd=site_path, capture_output=True, text=True)
+            if git_proc.returncode != 0:
+                 return public.returnMsg(False, f"Falha no Git: {git_proc.stderr}")
+
+            # 2. Executa Deploy.sh se existir
+            deploy_script = os.path.join(site_path, 'deploy.sh')
+            if os.path.isfile(deploy_script):
+                try:
+                    os.chmod(deploy_script, 0o755) # Garante permissão de execução
+                except:
+                    pass
+                
+                # Executa deploy.sh usando bash/sh se disponível, caso contrário executa diretamente
+                if os.name == 'nt':
+                    # Windows
+                    deploy_proc = subprocess.run(['bash', './deploy.sh'], cwd=site_path, capture_output=True, text=True)
+                else:
+                    deploy_proc = subprocess.run(['./deploy.sh'], cwd=site_path, capture_output=True, text=True)
+                
+                if deploy_proc.returncode != 0:
+                    return public.returnMsg(False, f"Falha no Deploy: {deploy_proc.stderr}")
+                    
+                return public.returnMsg(True, f"Sucesso: Git Pull e Deploy executados.\nGit: {git_proc.stdout}\nDeploy: {deploy_proc.stdout}")
+                
+            return public.returnMsg(True, f"Sucesso: Git Pull concluído (sem deploy.sh).\nGit: {git_proc.stdout}")
+
+        except Exception as e:
+            return public.returnMsg(False, f"Erro interno: {str(e)}")

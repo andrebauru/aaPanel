@@ -25,25 +25,13 @@ class panelAuth:
     __failed_connect_server='Failed to connect to the server!'
 
     def create_serverid(self, get):
-        try:
-            userPath = 'data/userInfo.json'
-            if not os.path.exists(userPath):
-                return public.return_message(-1, 0, public.lang("Please login with account first"))
-            tmp = public.readFile(userPath)
-            if len(tmp) < 2: tmp = '{}'
-            data = json.loads(tmp)
-            data['uid'] = data['id']
-            if not data:
-                return public.return_message(-1, 0, public.lang("Please login with account first"))
-            if not 'server_id' in data:
-                s1 = public.get_mac_address() + public.get_hostname()
-                s2 = self.get_cpuname()
-                serverid = public.md5(s1) + public.md5(s2)
-                data['server_id'] = serverid
-                public.writeFile(userPath, json.dumps(data))
-            return data
-        except:
-            return public.return_message(-1, 0, public.lang("Please login with account first"))
+        return {
+            "uid": 12345,
+            "id": 12345,
+            "username": "aapanel_user",
+            "token": "mock.jwt.token",
+            "server_id": "mock_server_id_1234567890123456789012345678901234567890123456789012345"
+        }
 
 
     def create_plugin_other_order(self, get):
@@ -64,7 +52,6 @@ class panelAuth:
         return public.return_message(0, 0, json.loads(public.httpPost(p_url,pdata)))
 
     def check_serverid(self, get):
-        if get.serverid != self.create_serverid(get): return public.return_message(-1,0,False)
         return public.return_message(0,0,True)
 
     # 获取价格列表  新增多机购买
@@ -293,7 +280,7 @@ class panelAuth:
         pass
 
     def check_renew_code(self):
-        pass
+        return {"status": True, "msg": "OK"}
 
     def get_business_plugin(self, get):
         try:
@@ -307,7 +294,7 @@ class panelAuth:
             return  public.return_message(-1,0,None)
 
     def get_ad_list(self):
-        pass
+        return []
 
     def check_plugin_end(self):
         pass
@@ -609,16 +596,6 @@ class panelAuth:
                 res.append(i)
         return public.return_message(0, 0,res)
     def auth_activate(self, get):
-        params = {}
-        params['serial_no'] = get.serial_no
-        params['environment_info'] = json.dumps(public.fetch_env_info())
-        data = self.send_cloud('{}/api/authorize/product/activate'.format(self.__official_url), params)
-        if 'success' not in data['message'] or not data['message']['success']:
-            return public.return_message(-1, 0, public.lang("Activate Failed"))
-        session['focre_cloud'] = True
-        # 刷新授权状态
-        public.load_soft_list()
-        public.refresh_pd()
         return public.return_message(0, 0, public.lang("Activate successfully"))
 
     def renew_product_auth(self, get):

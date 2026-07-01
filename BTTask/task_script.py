@@ -298,6 +298,7 @@ def auto_scan_abnormal_mail():
 
 @task()
 def submit_email_statistics():
+    return True
     import public
     from datetime import datetime, timedelta
 
@@ -365,6 +366,7 @@ def submit_email_statistics():
 
 @task()
 def submit_module_call_statistics():
+    return True
     import json
     import requests
     import public

@@ -75,8 +75,16 @@ class SessionInterface(FlaskSessionInterface):
     def _get_signer(self, app):
         if not app.secret_key:
             return None
-        return Signer(app.secret_key, salt='flask-sessions',
+        signer = Signer(app.secret_key, salt='flask-sessions',
                       key_derivation='hmac')
+        original_sign = signer.sign
+        def safe_sign(value):
+            res = original_sign(value)
+            if isinstance(res, bytes):
+                return res.decode('utf-8')
+            return res
+        signer.sign = safe_sign
+        return signer
 
 
 class NullSessionInterface(SessionInterface):

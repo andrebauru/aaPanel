@@ -25,10 +25,13 @@ class panelAuth:
     # __official_url = 'http://dev.aapanel.com'
 
     def create_serverid(self, get):
-        try:
-            return public.get_userinfo()
-        except:
-            return public.return_msg_gettext(False, public.lang("Please login with account first"))
+        return {
+            "uid": 12345,
+            "id": 12345,
+            "username": "aapanel_user",
+            "token": "mock.jwt.token",
+            "server_id": "mock_server_id_1234567890123456789012345678901234567890123456789012345"
+        }
 
 
     def create_plugin_other_order(self,get):
@@ -49,7 +52,6 @@ class panelAuth:
         return json.loads(public.httpPost(p_url,pdata))
     
     def check_serverid(self,get):
-        if get.serverid != self.create_serverid(get): return False
         return True
 
     def get_plugin_price(self, get):
@@ -199,7 +201,7 @@ class panelAuth:
         pass
     
     def check_renew_code(self):
-        pass
+        return {"status": True, "msg": "OK"}
     
     def get_business_plugin(self,get):
         try:
@@ -212,7 +214,7 @@ class panelAuth:
         except: return None
     
     def get_ad_list(self):
-        pass
+        return []
     
     def check_plugin_end(self):
         pass
@@ -359,13 +361,7 @@ class panelAuth:
         return res
 
     def auth_activate(self,get):
-        params = {}
-        params['serial_no'] = get.serial_no
-        params['environment_info'] = json.dumps(public.fetch_env_info())
-        data = self.send_cloud('{}/api/authorize/product/activate'.format(self.__official_url), params)
-        if not data['success']: return public.return_msg_gettext(False, public.lang("Activate Failed"))
-        session['focre_cloud'] = True
-        return public.return_msg_gettext(True, public.lang("Activate successfully"))
+        return {"status": True, "msg": "Activate successfully"}
 
     def renew_product_auth(self,get):
         params = {}

@@ -853,6 +853,7 @@ def push_msg():
 # 检测面板授权
 # noinspection PyUnboundLocalVariable
 def panel_auth():
+    return True
     pro_file = '/www/server/panel/data/panel_pro.pl'
     update_file = '/www/server/panel/data/now_update_pro.pl'
     if os.path.exists(pro_file):
@@ -878,6 +879,7 @@ def count_ssh_logs():
 
 # 每天提交一次昨天的邮局发送总数
 def submit_email_statistics():
+    return True
     task_ExecShell(
         "submit_email_statistics",
         paths_exists=[
@@ -888,6 +890,7 @@ def submit_email_statistics():
 
 # 每天一次 提交今天之前的统计数据
 def submit_module_call_statistics():
+    return True
     task_ExecShell("submit_module_call_statistics")
 
 

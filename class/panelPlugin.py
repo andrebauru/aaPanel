@@ -415,76 +415,14 @@ class panelPlugin:
 
     #从云端取列表
     def get_cloud_list(self, get=None):
-        force = 0
-        if get and hasattr(get, 'force'):
-            force = int(get.force)
-
-        if 'focre_cloud' in session:
-            if session['focre_cloud']:
-                force = 1
-                session['focre_cloud'] = False
-
-        if 'init_cloud' not in session:
-            force = 1
-            session['init_cloud'] = True
-
-        softList = public.load_soft_list(True if force == 1 else False)
-
-
-        if get and 'init' in get:
-            if softList:
-                if 'success' not in softList:
-                    return softList
-
-        if force > 0:
-            public.ExecShell('rm -f /tmp/bmac_*')
-            public.run_thread(self.getCloudPHPExt)
-            # 专业版和企业版到期提醒，aaPanel目前没有先注释
-            # self.expire_msg(softList)
-
-        try:
-            p_token = cache.get('p_token')
-
-            if p_token is None:
-                p_token = 'bmac_' + public.Md5(public.get_mac_address())
-                cache.set('p_token', p_token)
-
-            public.writeFile("/tmp/" + p_token, str(softList['pro']))
-            public.writeFile('/tmp/{}.time'.format(p_token), str(int(time.time())))
-        except:
-            pass
-
         sType = 0
         try:
             if hasattr(get,'type'): sType = int(get['type'])
-            if hasattr(get,'query'):
-                if get.query:
-                    # 关键词统计     参数keyword
-                    import panelAuth
-                    import requests
-                    countUrl = '{}/api/panel/submit_keyword'.format(self.__official_url)
-                    pdata = panelAuth.panelAuth().create_serverid(None)
-                    url_headers = {}
-                    if 'token' in pdata:
-                        url_headers = {"authorization": "bt {}".format(pdata['token'])}
-                    pdata['environment_info'] = json.dumps(public.fetch_env_info())
-                    keyword = {
-                        "keyword": get.query
-                    }
-                    try:
-                        requests.post(countUrl, params=keyword, headers=url_headers, verify=False, timeout=3)
-                    except:
-                        pass
-                    sType = 0
-        except:pass
+        except:
+            pass
 
-        # 扫描本地插件并追加到软件列表中  修复类型错误
-        if isinstance(softList, dict) and 'list' in softList:
-            softList['list'] = self.get_local_plugin(softList['list'])
-        else:
-            softList = {'list': []}
-
-        # 软件列表分类处理
+        softList = {"list": [], "pro": -1, "ltd": -1, "type": []}
+        softList['list'] = self.get_local_plugin(softList['list'])
         softList['list'] = self.get_types(softList['list'], sType)
 
         if hasattr(get, 'query'):

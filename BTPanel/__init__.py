@@ -54,6 +54,7 @@ app = Flask(
     __name__,
     template_folder="templates/{}".format(public.GetConfigValue('template'))
 )
+app.session_cookie_name = 'session'
 
 # 匹配你的 URL 格式：/apsess_xxx/...
 APSESS_PATH_RE = re.compile(r"^/((?:apsess_)+[A-Za-z0-9]{16,32})(/.*|$)")
@@ -187,8 +188,14 @@ if os.path.exists(basic_auth_conf):
         pass
 
 # 初始化SESSION服务
+try:
+    uname_str = str(os.uname())
+except AttributeError:
+    import platform
+    uname_str = str(platform.uname())
+
 app.secret_key = public.md5(
-    str(os.uname()) +
+    uname_str +
     str(psutil.boot_time()))  # uuid.UUID(int=uuid.getnode()).hex[-12:]
 local_ip = None
 my_terms = {}
@@ -1083,6 +1090,7 @@ def site(pdata=None):
         # 网站管理新增
         'test_domains_api',
         'site_rname',
+        'GitPullAndDeploy',
     )
     return publicObject(siteObject, defs, None, pdata)
 
@@ -2116,7 +2124,7 @@ def tips():
 
 # ======================严格排查区域============================#
 
-route_path = os.path.join(admin_path, '')
+route_path = os.path.join(admin_path, '').replace('\\', '/')
 if not route_path: route_path = '/'
 if route_path[-1] == '/': route_path = route_path[:-1]
 if route_path[0] != '/': route_path = '/' + route_path
@@ -4167,6 +4175,7 @@ def site_v2(pdata=None):
         'add_project_site_type',
         'modify_project_site_type',
         'remove_project_site_type',
+        'GitPullAndDeploy',
     )
     return publicObject(siteObject, defs, None, pdata)
 

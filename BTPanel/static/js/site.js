@@ -2827,6 +2827,7 @@ var site = {
 
 							//if (bt.os == 'Linux') opt += '<a href="javascript:;" ' + _check + ' class="btlink ">' + lan.site.firewalld + '</a> | ';
 							opt += '<a href="javascript:;" class="btlink" onclick="site.web_edit(this)">' + lan.site.set + ' </a> | ';
+							opt += '<a href="javascript:;" class="btlink" onclick="site_git_deploy(\'' + item.name + '\')">Deploy Git</a> | ';
 							opt += '<a href="javascript:;" class="btlink" onclick="site.del_site(' + item.id + ",'" + item.name + '\')" title="' + lan.site.del_site + '">' + lan.site.del + '</a>';
 							return opt;
 						},
@@ -12896,3 +12897,11 @@ $('#cutMode .tabs-item[data-type="' + (bt.get_cookie('site_model') || 'php') + '
 // 	}
 // 	return o;
 // };
+
+function site_git_deploy(siteName) {
+	var loadT = bt.load("Executando Git Pull e Deploy...");
+	bt.send('GitPullAndDeploy', 'site/GitPullAndDeploy', { siteName: siteName }, function (rdata) {
+		loadT.close();
+		bt.msg(rdata);
+	});
+}
